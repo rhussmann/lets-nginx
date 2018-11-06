@@ -130,8 +130,7 @@ if [ $fresh = true ]; then
  echo "certbot certonly "${letscmd}" \
   --email "${EMAIL}" --agree-tos --no-eff-email \
   --dns-cloudflare \
-  --dns-cloudflare-credentials ~/.secrets/certbot/cloudflare.ini \
-  --force-renewal" > /etc/nginx/lets
+  --dns-cloudflare-credentials ~/.secrets/certbot/cloudflare.ini" > /etc/nginx/lets
 
   echo "Running initial certificate request... "
   /bin/bash /etc/nginx/lets
