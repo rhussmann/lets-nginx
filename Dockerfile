@@ -5,8 +5,11 @@ MAINTAINER Ash Wilson <smashwilson@gmail.com>
 # in the entrypoint.sh script
 RUN apk add --update bash \
   certbot \
-  openssl openssl-dev ca-certificates \
+  openssl openssl-dev ca-certificates py-pip \
   && rm -rf /var/cache/apk/*
+
+RUN pip install --upgrade pip
+RUN pip install certbot-dns-cloudflare
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log

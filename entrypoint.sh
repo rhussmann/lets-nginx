@@ -9,6 +9,8 @@ MISSING=""
 [ -z "${DOMAIN}" ] && MISSING="${MISSING} DOMAIN"
 [ -z "${UPSTREAM}" ] && MISSING="${MISSING} UPSTREAM"
 [ -z "${EMAIL}" ] && MISSING="${MISSING} EMAIL"
+[ -z "${CLOUDFLARE_EMAIL}" ] && MISSING="${MISSING} CLOUDFLARE_EMAIL"
+[ -z "${CLOUDFLARE_API_KEY}" ] && MISSING="${MISSING} CLOUDFLARE_API_KEY"
 
 
 if [ "${MISSING}" != "" ]; then
@@ -112,20 +114,30 @@ else
   fi
 fi
 
+# Write cloudflare.ini file
+mkdir -p ~/.secrets/certbot
+echo "# Cloudflare credentials
+dns_cloudflare_email = ${CLOUDFLARE_EMAIL}
+dns_cloudflare_api_key = ${CLOUDFLARE_API_KEY}
+" > ~/.secrets/certbot/cloudflare.ini
+chmod 400 ~/.secrets/certbot/cloudflare.ini
+
 # Initial certificate request, but skip if cached
 if [ $fresh = true ]; then
   echo "The SAN list has changed, removing the old certificate and ask for a new one."
   rm -rf /etc/letsencrypt/{live,archive,keys,renewal}
 
  echo "certbot certonly "${letscmd}" \
-  --standalone --preferred-challenges http --text \
-  "${SERVER}" \
-  --email "${EMAIL}" --agree-tos \
-  --expand " > /etc/nginx/lets
+  --email "${EMAIL}" --agree-tos --no-eff-email \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials ~/.secrets/certbot/cloudflare.ini \
+  --force-renewal" > /etc/nginx/lets
 
   echo "Running initial certificate request... "
   /bin/bash /etc/nginx/lets
 fi
+
+rm ~/.secrets/certbot/cloudflare.ini
 
 #update the stored SAN list
 echo "${DOMAIN}" > /etc/letsencrypt/san_list
